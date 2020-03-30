@@ -84,7 +84,8 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
                         new File(indicatorDir, INDICATOR_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_PERSISTENT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
-                        transactCode, getNativePtr(mServiceData));
+                        Build.VERSION.SDK_INT
+                        /*transactCode, getNativePtr(mServiceData)*/);
             }
         };
         t.start();
@@ -108,7 +109,8 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
                         new File(indicatorDir, INDICATOR_PERSISTENT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_PERSISTENT_FILENAME).getAbsolutePath(),
-                        transactCode, getNativePtr(mServiceData));
+                        Build.VERSION.SDK_INT
+                        /*transactCode, getNativePtr(mServiceData)*/);
             }
         };
         t.start();

@@ -10,8 +10,9 @@ package com.boolbird.keepalive;
         }
     }
 
-    public native void doDaemon(String indicatorSelfPath, String indicatorDaemonPath, String observerSelfPath, String observerDaemonPath, int code, long parcelPtr);
+    public native void doDaemon(String indicatorSelfPath, String indicatorDaemonPath, String observerSelfPath, String observerDaemonPath, int sdkVersion);
 
+    public native void test();
     public void onDaemonDead() {
         IKeepAliveProcess.Fetcher.fetchStrategy().onDaemonDead();
     }
