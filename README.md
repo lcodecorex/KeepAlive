@@ -3,6 +3,12 @@ KeepAlive是在[Leoric](https://github.com/tiann/Leoric)(通过JNI复活进程)�
 
 `master`分支是`利用 libbinder.so 与 ActivityManagerService 通信`的版本，`ioctl`分支是`使用 ioctl 与 binder 驱动通信`的版本。
 
+**注**：
+1. 该项目仅供学习和参考，在android4.4到android9.0的模拟器上有效，在真机上不能保证保活成功（MIUI等定制系统已封杀了这个方案）。
+2. 对于自研轻量定制的 Android系统，对一些系统应用的保活，这个方案还是很有优势的。资源占用少，用户无感知，成功率高。
+3. 不建议在C端产品上使用。
+4. 可作为学习binder框架的一个案例。
+
 ## 使用方法
 1. 在Application中注册KeepAlive服务
 ```
@@ -57,6 +63,7 @@ configs.setOnBootReceivedListener(new KeepAliveConfigs.OnBootReceivedListener() 
 
 - [Android 黑科技保活实现原理揭秘](http://weishu.me/2020/01/16/a-keep-alive-method-on-android/)
 - [深度剖析App保活案例](http://www.52im.net/forum.php?mod=viewthread&tid=2893&highlight=%B1%A3%BB%EE)
+- [Android黑科技保活的技术实现](https://juejin.im/post/5e820b61e51d45470652e7b8)
 
 ## 应对方法
 
