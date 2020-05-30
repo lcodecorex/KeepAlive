@@ -67,7 +67,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
     }
 
     @Override
-    public void onPersistentCreate(final Context context, KeepAliveConfigs configs) {
+    public void onPersistentCreate(final Context context, final KeepAliveConfigs configs) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
@@ -84,6 +84,8 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
                         new File(indicatorDir, INDICATOR_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_PERSISTENT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
+                        context.getPackageName(),
+                        configs.PERSISTENT_CONFIG.serviceName,
                         Build.VERSION.SDK_INT
                         /*transactCode, getNativePtr(mServiceData)*/);
             }
@@ -92,7 +94,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
     }
 
     @Override
-    public void onDaemonAssistantCreate(final Context context, KeepAliveConfigs configs) {
+    public void onDaemonAssistantCreate(final Context context, final KeepAliveConfigs configs) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return;
         }
@@ -109,6 +111,8 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
                         new File(indicatorDir, INDICATOR_PERSISTENT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_PERSISTENT_FILENAME).getAbsolutePath(),
+                        context.getPackageName(),
+                        configs.PERSISTENT_CONFIG.serviceName,
                         Build.VERSION.SDK_INT
                         /*transactCode, getNativePtr(mServiceData)*/);
             }

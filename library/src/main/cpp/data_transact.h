@@ -7,18 +7,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/file.h>
-//#include <binder/IServiceManager.h>
 #include <linux/android/binder.h>
 #include "common.h"
 #include "cParcel.h"
-
-//#define TAG        "KeepAlive"
-//#define LOGI(...)    __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
-//#define LOGD(...)    __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
-//#define LOGW(...)    __android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__)
-//#define LOGE(...)    __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
-
-#define    DAEMON_CALLBACK_NAME        "onDaemonDead"
 
 #define BINDER_VM_SIZE ((1 * 1024 * 1024) - sysconf(_SC_PAGE_SIZE) * 2)
 #define DEFAULT_MAX_BINDER_THREADS 15

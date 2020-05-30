@@ -11,12 +11,6 @@
 #include "data_transact.h"
 #include "cParcel.h"
 
-#define TAG        "KeepAlive"
-#define LOGI(...)    __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
-#define LOGD(...)    __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
-#define LOGW(...)    __android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__)
-#define LOGE(...)    __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
-
 #define    DAEMON_CALLBACK_NAME        "onDaemonDead"
 
 using namespace android;
@@ -149,7 +143,8 @@ void java_callback(JNIEnv *env, jobject jobj, char *method_name) {
 }
 
 void do_daemon(JNIEnv *env, jobject jobj, char *indicator_self_path, char *indicator_daemon_path,
-               char *observer_self_path, char *observer_daemon_path, int sdk_version,
+               char *observer_self_path, char *observer_daemon_path,
+               const char *pkgName, const char *serviceName, int sdk_version,
                uint32_t transact_code) {
     int lock_status = 0;
     int try_time = 0;
@@ -190,8 +185,10 @@ void do_daemon(JNIEnv *env, jobject jobj, char *indicator_self_path, char *indic
 
     uint32_t handle = get_service("activity", mDriverFD);
     Parcel *data = new Parcel;
-    writeService(*data, "com.boolbird.keepalive",
-                 "com.boolbird.keepalive.demo.Service1", sdk_version);
+    LOGD("writeService %s %s", pkgName, serviceName);
+//    writeService(*data, pkgName, serviceName, sdk_version);
+// com.boolbird.keepalive com.boolbird.keepalive.demo.Service1
+    writeService(*data, pkgName, serviceName, sdk_version);
 
     LOGD("Watch >>>>to lock_file<<<<< !!");
     lock_status = lock_file(indicator_daemon_path);
@@ -215,6 +212,8 @@ Java_com_boolbird_keepalive_NativeKeepAlive_doDaemon(JNIEnv *env, jobject jobj,
                                                      jstring indicatorDaemonPath,
                                                      jstring observerSelfPath,
                                                      jstring observerDaemonPath,
+                                                     jstring packageName,
+                                                     jstring serviceName,
                                                      jint sdk_version) {
     if (indicatorSelfPath == NULL || indicatorDaemonPath == NULL || observerSelfPath == NULL ||
         observerDaemonPath == NULL) {
@@ -243,6 +242,8 @@ Java_com_boolbird_keepalive_NativeKeepAlive_doDaemon(JNIEnv *env, jobject jobj,
     char *indicator_daemon_path = (char *) env->GetStringUTFChars(indicatorDaemonPath, 0);
     char *observer_self_path = (char *) env->GetStringUTFChars(observerSelfPath, 0);
     char *observer_daemon_path = (char *) env->GetStringUTFChars(observerDaemonPath, 0);
+    char *pkgName = (char *) env->GetStringUTFChars(packageName, 0);
+    char *svcName = (char *) env->GetStringUTFChars(serviceName, 0);
 
     pid_t pid;
     if ((pid = fork()) < 0) {
@@ -283,7 +284,8 @@ Java_com_boolbird_keepalive_NativeKeepAlive_doDaemon(JNIEnv *env, jobject jobj,
 
         // 直接传递parcel，会导致监听不到进程被杀；改成传输u8*数据解决了
         do_daemon(env, jobj, indicator_self_path_child, indicator_daemon_path_child,
-                  observer_self_path_child, observer_daemon_path_child, sdk_version, transact_code);
+                  observer_self_path_child, observer_daemon_path_child, pkgName, svcName,
+                  sdk_version, transact_code);
     }
 
     if (waitpid(pid, NULL, 0) != pid)
@@ -291,12 +293,13 @@ Java_com_boolbird_keepalive_NativeKeepAlive_doDaemon(JNIEnv *env, jobject jobj,
 
     LOGD("do_daemon pid=%d ppid=%d", getpid(), getppid());
     do_daemon(env, jobj, indicator_self_path, indicator_daemon_path, observer_self_path,
-              observer_daemon_path, sdk_version, transact_code);
+              observer_daemon_path, pkgName, svcName, sdk_version, transact_code);
 }
 
 }extern "C"
 JNIEXPORT void JNICALL
-Java_com_boolbird_keepalive_NativeKeepAlive_test(JNIEnv *env, jobject thiz) {
+Java_com_boolbird_keepalive_NativeKeepAlive_test(JNIEnv *env, jobject thiz, jstring packageName,
+                                                 jstring serviceName, jint sdk_version) {
     int mDriverFD = open_driver();
     void *mVMStart = MAP_FAILED;
     initProcessState(mDriverFD, mVMStart);
@@ -307,10 +310,31 @@ Java_com_boolbird_keepalive_NativeKeepAlive_test(JNIEnv *env, jobject thiz) {
 //    get_service("storage");
 //    get_service("phone");
 
+    char *pkgName = (char *) env->GetStringUTFChars(packageName, 0);
+    char *svcName = (char *) env->GetStringUTFChars(serviceName, 0);
+
     Parcel *data = new Parcel;
-    writeService(*data, "com.boolbird.keepalive",
-                 "com.boolbird.keepalive.demo.Service2", 28);
-    status_t status = write_transact(handle, 30, *data, NULL, 1, mDriverFD);
+    writeService(*data, pkgName, svcName, sdk_version);
+
+    uint32_t transact_code = 0;
+    switch (sdk_version) {
+        case 26:
+        case 27:
+            transact_code = 26;
+            break;
+        case 28:
+            transact_code = 30;
+            break;
+        case 29:
+            transact_code = 24;
+            break;
+        default:
+            transact_code = 34;
+            break;
+    }
+
+    status_t status = write_transact(handle, transact_code, *data, NULL, 1, mDriverFD);
     LOGD("writeService result is %d", status);
     delete data;
+    unInitProcessState(mDriverFD, mVMStart);
 }
